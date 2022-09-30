@@ -13,7 +13,7 @@ bot = telebot.TeleBot(config.TOKEN)
 print(bot.get_me())
 
 
-# ________________________ПАРСИНГ ТУТ____________________________________________________
+# __________ПАРСИНГ ТУТ____________________________________________________
 URL = 'https://www.inpearls.ru/%D1%81%D1%83%D0%BC%D0%BE%D1%87%D0%BA%D0%B0'
 
 def parser(url):
@@ -24,7 +24,7 @@ def parser(url):
 list_of_citaty = parser(URL)
 random.shuffle(list_of_citaty)
 
-# ________________________ТЕЛО БОТА________________________________________________________
+# ______________ТЕЛО БОТА________________________________________________________
 @bot.message_handler(commands=['start', 'restart'])
 def start(message):
     photo = open('static/welcome.webp', 'rb')  # адрес где лежит картинка
