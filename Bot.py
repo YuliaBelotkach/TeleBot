@@ -1,84 +1,90 @@
-import random  # рандомные анекдоты
-import requests  # парсер
-
 import telebot, time  # удалено просто import telebot
+from telebot import apihelper, types
+import random  # рандомные цитаты
+import requests  # парсер
 import config  # для файла конфиг, там лежит пока только токен
 from bs4 import BeautifulSoup as b  # парсер
 import logging  # для безостановочного бота
-from telebot import types
+from telebot import types  # для клавиатуры
+import sqlite3
+
+
+bot = telebot.TeleBot(config.TOKEN)
+print(bot.get_me())
+
 
 # ________________________ПАРСИНГ ТУТ____________________________________________________
-URL = 'https://www.anekdot.ru/last/good'
+URL = 'https://www.inpearls.ru/%D1%81%D1%83%D0%BC%D0%BE%D1%87%D0%BA%D0%B0'
+
 def parser(url):
     r = requests.get(url)
     soup = b(r.text, 'html.parser')
-    anekdots = soup.find_all('div', class_='text')
-    return [c.text for c in anekdots]
-list_of_jokes = parser(URL)
-random.shuffle(list_of_jokes)
-bot = telebot.TeleBot(config.TOKEN)
+    citaty = soup.find_all('div', class_='text')
+    return [c.text for c in citaty]
+list_of_citaty = parser(URL)
+random.shuffle(list_of_citaty)
 
 # ________________________ТЕЛО БОТА________________________________________________________
-@bot.message_handler(commands=['start'])
-def welcome(message):
-    photo = open('static/welcome.webp', 'rb') # адрес где лежит картинка
-    bot.send_sticker(message.chat.id, photo) # отправляем одну и ту же картинку
+@bot.message_handler(commands=['start', 'restart'])
+def start(message):
+    photo = open('static/welcome.webp', 'rb')  # адрес где лежит картинка
+    bot.send_sticker(message.chat.id, photo)  # отправляем одну и ту же картинку
     keyboard = telebot.types.ReplyKeyboardMarkup(True)
-    keyboard.row('💞Каталог💞', 'Инфо', 'Твоя скидка')
-    bot.send_message(message.chat.id, 'Привет, {first}. Введи цифру или напиши привет или пока'.format(first=message.from_user.first_name), reply_markup=keyboard)
+    keyboard.row('Каталог', 'Доставка', 'Оплата')
+    keyboard.row('Ссылки', 'Запишите меня', 'Штрихкод')
+    bot.send_message(message.chat.id, 'Привет, {first}.\nЯ-бот, который:\n-поможет выбрать сумку\n-ответит на все твои вопросы\n-добавит тебе бонусы\n-покажет трек-номер посылки \n/restart'.format(first=message.from_user.first_name), parse_mode='html', reply_markup=keyboard)
+    bot.send_message(message.chat.id, 'Сделай свой выбор, нажав на кнопку ниже.\nИли...может, почитаем цитаты про женскую сумочку? Отправь мне любую цифру')
 
-     # тут наши кнопочки на клавиатуре, можно добавить что угодно
-    # bot.send_message(message.chat.id, 'Привет, человек! Введи цифру или напиши привет или пока', reply_markup=keyboard)
 
 
 
 @bot.message_handler(content_types=['text'])
-def jokes(message):
+def main(message):
     if message.text.lower() in '123456789':
-        bot.send_message(message.chat.id, list_of_jokes[0])
-        del list_of_jokes[0]
-    elif message.text.lower() == 'привет':
-        bot.send_message(message.chat.id, 'Ещё раз привет!')
-    elif message.text.lower() == 'пока':
-        bot.send_message(message.chat.id, 'Пока!')
-    elif message.text.lower() == '💞каталог💞':
-
-        markup = types.InlineKeyboardMarkup(row_width=2)
-        item1 = types.InlineKeyboardMarkup("Сумка формата А4", callback_data='Сумка формата А4')
-        item2 = types.InlineKeyboardMarkup("Сумка формата книги", callback_data='Сумка формата книги')
-
-        markup.add(item1, item2)
-
-        bot.send_message(message.chat.id, 'Смотрите', reply_markup=markup)
-    elif message.text.lower() == 'инфо':
-        bot.send_message(message.chat.id, 'типа информация!')
-    elif message.text.lower() == 'твоя скидка':
-        bot.send_message(message.chat.id, 'типа твоя скидка!')
-    else:
-        bot.send_message(message.chat.id, 'Введи цифру или напиши Привет или Пока')
+        bot.send_message(message.chat.id, list_of_citaty[0])
+        del list_of_citaty[0]
+    elif message.text.lower() == 'каталог':
+        markup1 = types.InlineKeyboardMarkup()
+        item1 = types.InlineKeyboardButton("Сумки", callback_data='сумки')
+        item2 = types.InlineKeyboardButton("Плечевые ремни", url='https://fekla.by/product-category/remni-dlja-sumok/')
+        markup1.add(item1, item2)
+        bot.send_message(message.chat.id, text='Выбери нужную категорию:', reply_markup=markup1)
+    elif message.text.lower() == 'сумки':
+        bot.send_message(message.chat.id, 'Нажмите на кнопку с названием Сумки в разделе Каталог!')
+    elif message.text.lower() == 'плечевые ремни':
+        bot.send_message(message.chat.id, 'Нажмите на кнопку с названием Плечевые ремни в разделе Каталог!')
+    elif message.text.lower() == 'доставка':
+        markup2 = types.InlineKeyboardMarkup()
+        item3 = types.InlineKeyboardButton("В отделение почты", callback_data='сам')
+        item4 = types.InlineKeyboardButton("Курьером до двери", callback_data='дверь')
+        markup2.add(item3, item4)
+        bot.send_message(message.chat.id, text='Выбери нужный вариант:', reply_markup=markup2)
+    elif message.text.lower() == 'оплата':
+        bot.send_message(message.chat.id, text='какая-то инфа по оплате')
+    elif message.text.lower() == 'ссылки':
+        markup3 = types.InlineKeyboardMarkup()
+        item5 = types.InlineKeyboardButton("Instagram", url='https://www.instagram.com/fekla.by/')
+        item6 = types.InlineKeyboardButton("Сайт", url='https://fekla.by')
+        markup3.add(item5, item6)
+        bot.send_message(message.chat.id, text='Выбери нужную категорию:', reply_markup=markup3)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     try:
         if call.message:
-            if call.data == 'Сумка формата А4':
-                bot.send_message(call.message.chat.id, 'https://fekla.by/product-category/sumki/')
-            elif call.data == 'Сумка формата книги':
-                bot.send_message(call.message.chat.id, 'https://fekla.by/product-category/remni-dlja-sumok/')
+            if call.data == 'сумки':
+                bot.send_message(call.message.chat.id, 'тут покажем сумки')
+        if call.message:
+            if call.data == 'сам':
+                bot.send_message(call.message.chat.id, 'тут покажем евро и белпочта')
+        if call.message:
+            if call.data == 'дверь':
+                bot.send_message(call.message.chat.id, 'тут покажем тоже евро и белпочта')
 
 
-while True:   # для безостановочной отработки
-    try:
-        logging.info("Bot running..")
-        bot.polling(none_stop=True, interval=2)
 
-        # Предполагаю, что бот может мирно завершить работу, поэтому
-        # даем выйти из цикла
-        break
-    except telebot.apihelper.ApiException as e:
-        logging.error(e)
-        bot.stop_polling()
+    except Exception as e:
+        print(repr(e))
 
-        time.sleep(15)
 
-        logging.info("Running again!")
+bot.polling()
