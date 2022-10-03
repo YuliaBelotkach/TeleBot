@@ -8,10 +8,8 @@ import logging  # для безостановочного бота
 from telebot import types  # для клавиатуры
 import sqlite3
 
-
 bot = telebot.TeleBot(config.TOKEN)
 print(bot.get_me())
-
 
 # __________ПАРСИНГ ТУТ____________________________________________________
 URL = 'https://www.inpearls.ru/%D1%81%D1%83%D0%BC%D0%BE%D1%87%D0%BA%D0%B0'
@@ -32,7 +30,7 @@ def start(message):
     keyboard = telebot.types.ReplyKeyboardMarkup(True) #добавляем кнопки внизу
     keyboard.row('Каталог', 'Доставка', 'Оплата') #первая полоска
     keyboard.row('Ссылки') #вторая полоска
-    bot.send_message(message.chat.id, 'Привет, {first}.\nЯ-бот, который:\n-поможет выбрать сумку\n-ответит на все твои вопросы\n-добавит тебе бонусы\n-покажет трек-номер посылки \n/restart'.format(first=message.from_user.first_name), parse_mode='html', reply_markup=keyboard)
+    bot.send_message(message.chat.id, 'Привет, {first}.\nЯ-бот, который:\n-поможет выбрать сумку\n-ответит на все твои вопросы.\n/restart'.format(first=message.from_user.first_name), parse_mode='html', reply_markup=keyboard)
     bot.send_message(message.chat.id, 'Сделай свой выбор, нажав на кнопку ниже.\nИли...может, почитаем цитаты про женскую сумочку? Отправь мне любую цифру')
 
 @bot.message_handler(content_types=['text'])
