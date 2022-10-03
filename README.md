@@ -3,7 +3,8 @@
 ![size](https://img.shields.io/bundlephobia/min/bot?color=red)
 ![files](https://img.shields.io/github/directory-file-count/YuliaBelotkach/TeleBot)
 ![lastcommit](https://img.shields.io/github/last-commit/YuliaBelotkach/TeleBot?color=blue)
-## e-commerce *for the site fekla.by*
+## e-commerce
+*for the site fekla.by*
 _____
 # Photo presentation
 ![image_bot](https://github.com/YuliaBelotkach/TeleBot/blob/master/static/044d9715-abce-4f6e-accf-6248199cfc00.jpg)
