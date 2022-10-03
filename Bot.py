@@ -31,7 +31,7 @@ def start(message):
     bot.send_sticker(message.chat.id, photo)  # отправляем одну и ту же картинку
     keyboard = telebot.types.ReplyKeyboardMarkup(True) #добавляем кнопки внизу
     keyboard.row('Каталог', 'Доставка', 'Оплата') #первая полоска
-    keyboard.row('Ссылки', 'Запишите меня', 'Штрихкод') #вторая полоска
+    keyboard.row('Ссылки') #вторая полоска
     bot.send_message(message.chat.id, 'Привет, {first}.\nЯ-бот, который:\n-поможет выбрать сумку\n-ответит на все твои вопросы\n-добавит тебе бонусы\n-покажет трек-номер посылки \n/restart'.format(first=message.from_user.first_name), parse_mode='html', reply_markup=keyboard)
     bot.send_message(message.chat.id, 'Сделай свой выбор, нажав на кнопку ниже.\nИли...может, почитаем цитаты про женскую сумочку? Отправь мне любую цифру')
 
